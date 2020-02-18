@@ -1,11 +1,15 @@
 import React, { useReducer } from "react";
+import uuid from "uuid";
 
 import proyectoContext from "./proyectoContext";
 import proyectoReducer from "./proyectoReducer";
 import {
   MOSTRAR_FORMULARIO,
   AGREGAR_PROYECTO,
-  OBTENER_PROYECTO
+  OBTENER_PROYECTO,
+  MOSTRAR_ERROR,
+  PROYECTO_ACTUAL,
+  ELIMINAR_PROYECTO
 } from "../../types";
 
 const ProyectoState = props => {
@@ -17,7 +21,9 @@ const ProyectoState = props => {
   ];
   const initialState = {
     proyectos: [],
-    formulario: false
+    formulario: false,
+    error: false,
+    proyecto: null
   };
 
   //Dispatch para ejecutar las acceiones
@@ -30,8 +36,12 @@ const ProyectoState = props => {
   };
 
   const agregarProyecto = proyecto => {
+    // agregar un id con uuid
+    proyecto.id = uuid.v4();
+    // insertar en el state
     dispatch({
-      type: AGREGAR_PROYECTO
+      type: AGREGAR_PROYECTO,
+      payload: proyecto
     });
   };
   const obtenerProyectos = () => {
@@ -40,15 +50,39 @@ const ProyectoState = props => {
       payload: proyectos
     });
   };
+  const mostrarError = () => {
+    dispatch({
+      type: MOSTRAR_ERROR
+    });
+  };
+
+  const proyectoActual = proyectoId => {
+    dispatch({
+      type: PROYECTO_ACTUAL,
+      payload: proyectoId
+    });
+  };
+  const eliminarProyecto = proyectoId => {
+    dispatch({
+      type: ELIMINAR_PROYECTO,
+      payload: proyectoId
+    });
+  };
 
   return (
     <proyectoContext.Provider
       value={{
         formulario: state.formulario,
         proyectos: state.proyectos,
+        error: state.error,
+        proyecto: state.proyecto,
+
         mostrarFormulario,
         agregarProyecto,
-        obtenerProyectos
+        obtenerProyectos,
+        mostrarError,
+        proyectoActual,
+        eliminarProyecto
       }}
     >
       {props.children}
