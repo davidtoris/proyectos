@@ -1,9 +1,13 @@
 import React, { useState, useContext, Fragment } from "react";
 import proyectoContext from "../../context/proyectos/proyectoContext";
+import tareaContext from '../../context/tareas/tareaContext'
 
 const FormTarea = () => {
   const proyectosContext = useContext(proyectoContext);
-  const { proyecto, error, mostrarError } = proyectosContext;
+  const { proyecto, error } = proyectosContext;
+
+  const tareasContext = useContext(tareaContext);
+  const { agregarTarea, validarTarea, errortarea, obtenerTareas } = tareasContext;
 
   // State del formulario
   const [tarea, guardarTarea] = useState({
@@ -12,6 +16,12 @@ const FormTarea = () => {
 
   // extraer el nombre del proyecto
   const { nombre } = tarea;
+
+  //Si no hay proyecto seleccionado
+  if(!proyecto) return null
+
+  // Array destructuring para extraer el proyecto actual
+  const [proyectoActual] = proyecto
 
   // Leer los valores del formulario
   const handleChange = e => {
@@ -25,12 +35,22 @@ const FormTarea = () => {
     e.preventDefault();
 
     // validar
-    if (nombre === "") return mostrarError();
+    if (nombre.trim() === "") {
+      validarTarea();
+      return
+    } 
 
-    // Si es edición o si es nueva tarea
+    // agregar  la nueva tarea al state de tareas
+    tarea.estado = false
+    tarea.proyectoId = proyectoActual.id
+    agregarTarea(tarea)
 
+    // Obtener y filtrar las tareas del proyecto actual 
+    obtenerTareas(proyectoActual.id)
+
+    //reiniciar formulario
     guardarTarea({
-      nombre: ""
+      nombre: ''
     });
   };
 
@@ -57,7 +77,7 @@ const FormTarea = () => {
               />
             </div>
           </form>
-          {error ? (
+          {errortarea ? (
             <p className="mensaje error">
               El nombre de la tarea es obligatorio
             </p>
